@@ -37,18 +37,75 @@ matrix_sf* mult_mats_sf(const matrix_sf *mat1, const matrix_sf *mat2) {
     res-> name= '#';
 
     for(int i = 0; i < rows; i++){
+        for(int j = 0; j < cols; j++){
+            int product = 0;
+
+            for(int k = 0; k < mat1->num_cols; k++){
+                product += mat1->values[i * mat1->num_cols + k] * mat2->values[k * mat2->num_cols + j];
+            }
+            res -> values[i*cols+j] = product;
+        }
 
     }
 
-   return NULL;
+   return res;
 }
 
 matrix_sf* transpose_mat_sf(const matrix_sf *mat) {
-    return NULL;
+    int rows = mat->num_rows;
+    int cols = mat->num_cols;
+    matrix_sf *res = malloc(sizeof(matrix_sf) + rows * cols * sizeof(int));
+
+    res->num_rows = cols;
+    res->num_cols = rows;
+    res-> name= '#';
+
+    for(int i = 0; i < rows; i++){
+        for(int j = 0; j < cols; j++){
+            res -> values[j * res->num_cols+i] = mat->values[i*mat->num_cols+j];
+        }
+    }
+
+    return res;
 }
 
 matrix_sf* create_matrix_sf(char name, const char *expr) {
-    return NULL;
+
+    const char *cur = expr;
+
+    int rows = strtol(cur, (char**)&cur, 10);
+    int cols = strtol(cur, (char**)&cur, 10);
+
+    matrix_sf *res = malloc(sizeof(matrix_sf) + cols * rows * sizeof(int));
+
+    res -> num_rows = rows;
+    res -> num_cols = cols;
+    res -> name = name;
+
+    while(*cur){
+        if(*cur != '['){
+            cur++;
+        }else{
+            cur++;
+            break;
+        }
+    }
+
+    int index = 0;
+
+    while(*cur && rows*cols > index){
+        while(*cur == ']' || *cur == ';' || *cur == ' '){
+            cur++;
+        }
+        if(*cur == '\0'){
+            break;
+        }
+        res -> values[index] = strtol(cur, (char**)&cur, 10);
+        index++;
+    }
+
+
+    return res;
 }
 
 char* infix2postfix_sf(char *infix) {
